@@ -2,6 +2,7 @@ let express = require("express");
 let cors = require("cors");
 let app = express();
 
+
 const productoUno = {
     id: 1,
     nombre: "All Might Silver Age",
@@ -46,34 +47,21 @@ const productoCinco = {
 }
 const productos = [productoUno, productoDos, productoTres, productoCuatro, productoCinco];
 
-const detalleUno = {
-    id: 1,
-    nombre: "All Might Silver Age",
-}
-const detalleDos = {
-    id: 2,
-    nombre: "Riku",
-    
-}
-const detalleTres = {
-    id: 3,
-    nombre: "Axel",
-    
-}
-const detalleCuatro = {
-    id: 4,
-    nombre: "King Mickey",
+const usuarioUno = {
+ email : "daniel@gmail.com",
+password : "12345",
 }
 
-const detalleCinco = {
-    id: 5,
-    nombre: "Deku battle academia uniform",
-}
+const usuarioDos = {
+    email : "d@d.com",
+   password : "12345",
+   }
 
-const detalle = [detalleUno, detalleDos,detalleTres, detalleCuatro, detalleCinco];
+const usuarios = [usuarioUno, usuarioDos]
 
 
 app.use(cors());
+app.use(express.json());
 
 app.get("/", function (request, response) {
     response.send("Welcome to Ecommerce");
@@ -103,6 +91,20 @@ app.get("/productosdestacados/:id", function (request, response) {
 
 
 app.post("/login", function (request, response) {
+
+    const email = request.body.email;
+    const password = request.body.password;
+
+    console.log(email, password);
+
+    for (let usuario of usuarios) {
+        if (email === usuario.email && password === usuario.password) {
+            response.status(200).send();
+        }
+
+    }
+
+    response.status(401).send();
 
 });
 
