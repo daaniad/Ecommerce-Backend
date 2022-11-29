@@ -206,8 +206,8 @@ app.post("/loggin/", function (request, response) {
 });
 
 app.post("/orders", function (request, response) {
-
-    let tarjetaId = request.body.tarjeta
+    let total = request.body.total;
+    let productos = request.body.productos;
     
     connection.connect(function(error) {
    
@@ -219,18 +219,36 @@ app.post("/orders", function (request, response) {
         console.log(`Connected to MySQL`);
     });
 
-    connection.query('insert into pedidos (usuarioid, productoid, direccionid, tarjetaid, estado, total, tipoPago) values (?, ?, ?, ?, ?, ?, ?) ', 
-    ["1","2", "calle arenisca", tarjetaId, "not shipped", "50€", ], function(error, results, fields) {
+
+    connection.query('insert into pedidos (usuarioid, direccionid, tarjetaid, estado, total, tipoPago) values (?, ?, ?, ?, ?, ?) ', 
+    ["1", "1", "1", "not shipped", total, 'tarjeta'], function(error, results, fields) {
         if (error) {
             console.log(`Se ha producido un error al ejecutar la query: ${error}`);
 
             response.status(400).send();
         }
-
-        response.send(results)
+        for (p of productos) {
+            let productoId = p.productoid;
+            let cantidad = p.cantidad;
+            let precio = p.precio;
+        
+        connection.query('insert into detallepedido (pedidoid, productoid, cantidad, precio, opinionid) values (?, ?, ?, ?, ?)',
+        [results.insertId, productoId, cantidad, precio, "1"], function(error, resulsts, fields) {
+            if (error) {
+                console.log(`no es posible conectarse al servidor ${error}`);
+                
+                response.status(400).send();
+            }
+            
+        });
+        console.log(productoId);
+    }
         console.log(results);
        
-    }) 
+    });
+
+    
+    response.send(resulsts);
 });
 
 app.get("/detalles", function (request, response) {
