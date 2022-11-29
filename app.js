@@ -1,6 +1,7 @@
 let express = require("express");
 let cors = require("cors");
 let mysql = require ('mysql');
+const { response } = require("express");
 let app = express();
 
 
@@ -73,7 +74,31 @@ let connection = mysql.createConnection({host: "localhost",
     password: "creuhnbvrvbDEGGH7",
     database: "basedatosproyecto"});
 
-    
+    function conectar() {
+        connection.connect (function(error) {
+            if (error) {
+                console.log(`No se ha podido conectar a MySQL ${error}`);
+                return;
+            }
+
+            console.log(`Conectado a MySQL`);
+            
+        });
+    }
+
+    conectar();
+
+
+    function query (query, params) {
+        connection.query(query, params, function (error, results, fields) {
+            if (error) {
+                console.log(`Error al ejecutar la query ${error}`);
+                return; 
+            }
+
+            response.send(results);
+        });
+    }
 
 
 
