@@ -1,6 +1,7 @@
 let express = require("express");
 let cors = require("cors");
 let mysql = require ('mysql');
+const {MongoClient} = require('mongodb');
 const { response } = require("express");
 let app = express();
 
@@ -99,6 +100,23 @@ let connection = mysql.createConnection({host: "localhost",
             response.send(results);
         });
     }
+
+
+/**
+ * MongoDB
+ */
+
+const mongoClient = new MongoClient('mongodb://127.0.0.1:27017');
+function ejecutarQueryMongo(collection, filtro, orden, 
+    callbackPorDocumento, callback, error) {
+    mongoClient.db("ecommerce")
+        .collection(collection)
+        .find(filtro)
+        .sort(orden)
+        .forEach(callbackPorDocumento)
+        .then(callback)
+        .catch(error);
+}
 
 
 
@@ -316,6 +334,53 @@ app.post("/signin", function (request, response){
 
 });
 
+
+app.get('/producto', function(request, response){
+    let products = [];
+     mongoClient.db('ecommerce')
+    .collection('producto')
+    .find()
+    .forEach((producto) => products.push({id:producto._id, nombre:producto.nombre, 
+        precio:producto.precio, stock:producto.stock}))
+    .then(() => response.send(products))
+    .catch(() => response.status(400).send)
+
+    
+    
+});
+
+
+app.get('/pedido', function(request, response) {
+    let pedidos = [];
+    ejecutarQueryMongo('pedidos', {}, {cantidad: 1}, 
+    (pedido) => pedidos.push(pedido), 
+    () =>response.send(pedidos), 
+    () => response.status(400).send);
+});
+    
+
+
 app.listen(8000, function() {
     console.log("API ready to listen");
+});
+
+/* Primer query de mongo
+mongoClient.connect().then(function() {
+    mongoClient.db('ecommerce')
+    .collection('usuario').find()
+    .forEach((usuario) => console.log(usuario))
+.catch(function(error) {
+    console.log(`Error: cannot connect to MongoDB ${error}`);
 })
+}) */
+
+/*Primera funcion mongo
+
+    ejecutarQueryMongo('pedidos', {}, {}, 
+    (pedido) => console.log(pedido), 
+    () =>console.log('ok'), 
+    () => console.log('error'));
+    */
+
+
+
