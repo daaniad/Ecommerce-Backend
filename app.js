@@ -353,10 +353,64 @@ app.get('/producto', function(request, response){
 app.get('/pedido', function(request, response) {
     let pedidos = [];
     ejecutarQueryMongo('pedidos', {}, {cantidad: 1}, 
-    (pedido) => pedidos.push(pedido), 
+    (pedido) => //{
+     //for (i =0; i < pedidos.pedido.length; i++ ) {
+        pedidos.push(pedido),
+    //}
+   // }, 
     () =>response.send(pedidos), 
     () => response.status(400).send);
 });
+
+
+app.get('/productodestacados', function(request, response){
+    let products = [];
+     mongoClient.db('ecommerce')
+    .collection('producto')
+    .find()
+    .forEach((producto) => products.push({id:producto._id, nombre:producto.nombre, 
+        precio:producto.precio, stock:producto.stock}))
+    .then(() => response.send(products))
+    .catch(() => response.status(400).send)
+
+    
+    
+});
+
+
+app.post("/loginfetch/", function (request, response) {
+    const email = request.body.email;
+    const password = request.body.password;
+    connection.connect(function(error) {
+   
+        if (error) {
+            console.log(`no es posible conectarse al servidor ${error}`);
+
+            return;
+        }
+        console.log(`Connected to MySQL`);
+    });
+
+    connection.query('select * from usuarios where email = ? and password = ? ', [email, password], function(error, results, fields) {
+        if (error) {
+            console.log(`Se ha producido un error al ejecutar la query: ${error}`);
+
+            return;
+        }
+
+        if (results.length > 0) {
+            response.status(200).send();
+        }
+        else if (results.length <= 0){
+            response.status(401).send(); 
+        }
+        console.log(results);
+
+    })
+       
+    });
+
+
     
 
 
@@ -381,6 +435,7 @@ mongoClient.connect().then(function() {
     () =>console.log('ok'), 
     () => console.log('error'));
     */
+
 
 
 
